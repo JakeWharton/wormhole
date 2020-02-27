@@ -1,0 +1,35 @@
+apply plugin: 'org.jetbrains.kotlin.jvm'
+
+dependencies {
+  implementation project(':wormhole-jar-rewriter')
+  compileOnly deps.androidGradlePlugin
+
+  testImplementation deps.androidGradlePlugin
+  testImplementation deps.junit
+  testImplementation deps.truth
+}
+
+sourceSets {
+  main.java.srcDir "gen"
+}
+
+task pluginVersion {
+  def outputDir = file("gen")
+
+  inputs.property 'version', project.version
+  outputs.dir outputDir
+
+  doLast {
+    def versionFile = file("$outputDir/com/jakewharton/wormhole/gradle/version.kt")
+    versionFile.parentFile.mkdirs()
+    versionFile.text = """// Generated file. Do not edit!
+package com.jakewharton.wormhole.gradle
+
+internal const val wormholeVersion = "${project.version}"
+"""
+  }
+}
+
+tasks.getByName('compileKotlin').dependsOn('pluginVersion')
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

@@ -1,0 +1,4 @@
+rootProject.name = 'wormhole'
+
+include ':wormhole-gradle'
+include ':wormhole-jar-rewriter'

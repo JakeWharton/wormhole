@@ -1,0 +1,13 @@
+apply plugin: 'org.jetbrains.kotlin.jvm'
+
+dependencies {
+  api deps.kotlinStdlib
+  implementation deps.asm
+
+  testImplementation deps.asmUtil
+  testImplementation deps.junit
+  testImplementation deps.truth
+  testImplementation deps.jimfs
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

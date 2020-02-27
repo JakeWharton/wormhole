@@ -1,0 +1,40 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+buildscript {
+  ext.deps = [
+      'junit': 'junit:junit:4.13',
+      'truth': 'com.google.truth:truth:1.0.1',
+      'kotlinStdlib': 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.61',
+      'asm': 'org.ow2.asm:asm:7.3.1',
+      'asmUtil': 'org.ow2.asm:asm-util:7.3.1',
+      'androidGradlePlugin': 'com.android.tools.build:gradle:4.0.0-beta01',
+      'jimfs': 'com.google.jimfs:jimfs:1.1',
+  ]
+
+  dependencies {
+    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61'
+  }
+  repositories {
+    mavenCentral()
+  }
+}
+
+subprojects {
+  tasks.withType(KotlinCompile).all {
+    kotlinOptions {
+      freeCompilerArgs += '-XXLanguage:+NewInference'
+      jvmTarget = '1.8'
+    }
+  }
+
+  repositories {
+    mavenCentral()
+    google()
+    jcenter {
+      // Required for a dependency of Android Gradle Plugin.
+      content {
+        includeGroup 'org.jetbrains.trove4j'
+      }
+    }
+  }
+}
