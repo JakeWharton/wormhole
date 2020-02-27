@@ -42,7 +42,7 @@ class AndroidJarRewriter
     // For example: java/util/Objects#checkFromToIndex(III)I
     val hash = desugarSignature.indexOf('#')
     val owner = desugarSignature.substring(0, hash)
-    val leftParen = desugarSignature.indexOf('(')
+    val leftParen = desugarSignature.indexOf('(', startIndex = hash)
     val name = desugarSignature.substring(hash + 1, leftParen)
     val descriptor = desugarSignature.substring(leftParen)
     val method = Method(name = name, descriptor = descriptor)
