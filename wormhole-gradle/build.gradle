@@ -10,11 +10,11 @@ dependencies {
 }
 
 sourceSets {
-  main.java.srcDir "gen"
+  main.java.srcDir "$buildDir/gen"
 }
 
 task pluginVersion {
-  def outputDir = file("gen")
+  def outputDir = file("$buildDir/gen")
 
   inputs.property 'version', project.version
   outputs.dir outputDir
