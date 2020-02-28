@@ -8,7 +8,7 @@ In your root `build.gradle`:
 ```groovy
 buildscript {
   dependencies {
-    classpath 'com.jakewharton.wormhole:wormhole-gradle:0.1.0'
+    classpath 'com.jakewharton.wormhole:wormhole-gradle:0.2.0'
   }
   repositories {
     mavenCentral()
