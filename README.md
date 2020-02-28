@@ -18,10 +18,10 @@ buildscript {
 
 In any Android subproject's `build.gradle`:
 ```groovy
-import com.jakewharton.wormhole.gradle.AndroidWormhole
+apply plugin: 'com.jakewharton.wormhole'
 
 android {
-  compileSdkVersion AndroidWormhole.create(29)
+  compileSdkVersion wormhole(29)
 }
 ```
 or `build.gradle.kts`:

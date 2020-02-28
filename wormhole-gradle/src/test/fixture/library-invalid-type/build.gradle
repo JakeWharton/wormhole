@@ -1,0 +1,20 @@
+plugins {
+  id 'com.android.library'
+  id 'com.jakewharton.wormhole'
+}
+
+repositories {
+  google {
+    metadataSources {
+      artifact()
+    }
+  }
+}
+
+android {
+  compileSdkVersion wormhole(29f)
+
+  defaultConfig {
+    minSdkVersion 14
+  }
+}
