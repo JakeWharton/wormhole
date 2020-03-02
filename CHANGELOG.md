@@ -14,7 +14,7 @@ Version 0.3.0 *(2020-03-02)*
    ```
    > Task :lintDebug FAILED
    Example.java:5: Error: Call requires API level 19 (current min is 14): java.lang.Long#compare [NewApi]
-       int result = Long.compare(1L, 2L));
+       int result = Long.compare(1L, 2L);
                          ~~~~~~~
    ```
 
