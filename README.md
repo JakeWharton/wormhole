@@ -29,7 +29,7 @@ or `build.gradle.kts`:
 import com.jakewharton.wormhole.gradle.wormhole
 
 android {
-  compileSdkVersion wormhole(29)
+  compileSdkVersion(wormhole(29))
 }
 ```
 
