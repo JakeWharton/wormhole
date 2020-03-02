@@ -53,11 +53,9 @@ class AndroidWormhole : Plugin<Project> {
 
       val platformsDir = sdkDir.resolve("platforms")
       val wormholeDir = platformsDir.resolve(wormholePlatform)
-      val wormholeAndroidJarFile = wormholeDir.resolve("android.jar")
-      if (Files.notExists(wormholeAndroidJarFile)) {
+      if (Files.notExists(wormholeDir)) {
         val platformDir = platformsDir.resolve(platform)
-        val androidJarFile = platformDir.resolve("android.jar")
-        if (Files.notExists(androidJarFile)) {
+        if (Files.notExists(platformDir)) {
           // TODO try to install automatically
           throw IllegalArgumentException("Platform '$platform' not installed")
         }
@@ -76,15 +74,15 @@ class AndroidWormhole : Plugin<Project> {
                   .plus(codenameProperty + wormholeCodename)
                   .joinToString("\n")
               Files.write(destination, properties.toByteArray(UTF_8))
-            } else if (relativePath != "android.jar" && relativePath != "package.xml") {
+            } else if (relativePath == "android.jar") {
+              val desugaredApiSignatures = desugaredApiSignatures()
+              AndroidJarRewriter().rewrite(source, desugaredApiSignatures, destination)
+            } else if (relativePath != "package.xml") {
               Files.copy(source, destination)
             }
             return CONTINUE
           }
         })
-
-        val desugaredApiSignatures = desugaredApiSignatures()
-        AndroidJarRewriter().rewrite(androidJarFile, desugaredApiSignatures, wormholeAndroidJarFile)
       }
       return wormholePlatform
     }
