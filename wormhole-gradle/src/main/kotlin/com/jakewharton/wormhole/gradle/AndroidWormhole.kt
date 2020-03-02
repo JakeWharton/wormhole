@@ -4,6 +4,8 @@ import com.android.build.gradle.BaseExtension
 import com.android.tools.r8.BackportedMethodList
 import com.android.tools.r8.BackportedMethodListCommand
 import com.jakewharton.wormhole.jar.AndroidJarRewriter
+import com.jakewharton.wormhole.lint.LintApi
+import com.jakewharton.wormhole.lint.LintMethod
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
@@ -53,16 +55,15 @@ class AndroidWormhole : Plugin<Project> {
 
       val platformsDir = sdkDir.resolve("platforms")
       val wormholeDir = platformsDir.resolve(wormholePlatform)
-      val wormholeAndroidJarFile = wormholeDir.resolve("android.jar")
-      if (Files.notExists(wormholeAndroidJarFile)) {
+      if (Files.notExists(wormholeDir)) {
         val platformDir = platformsDir.resolve(platform)
-        val androidJarFile = platformDir.resolve("android.jar")
-        if (Files.notExists(androidJarFile)) {
+        if (Files.notExists(platformDir)) {
           // TODO try to install automatically
           throw IllegalArgumentException("Platform '$platform' not installed")
         }
 
-        // Copy everything over except for the android.jar to look like the original platform.
+        val desugaredApiSignatures = desugaredApiSignatures()
+
         Files.createDirectory(wormholeDir)
         Files.walkFileTree(platformDir, object : SimpleFileVisitor<Path>() {
           override fun visitFile(source: Path, attrs: BasicFileAttributes): FileVisitResult {
@@ -70,27 +71,57 @@ class AndroidWormhole : Plugin<Project> {
             val destination = wormholeDir.resolve(relativePath)
             Files.createDirectories(destination.parent)
 
-            if (relativePath == "source.properties") {
-              val properties = Files.readAllLines(source, UTF_8)
-                  .filterNot { it.startsWith(codenameProperty) }
-                  .plus(codenameProperty + wormholeCodename)
-                  .joinToString("\n")
-              Files.write(destination, properties.toByteArray(UTF_8))
-            } else if (relativePath != "android.jar" && relativePath != "package.xml") {
-              Files.copy(source, destination)
+            when (relativePath) {
+              "source.properties" -> processSourceProperties(source, destination)
+              "android.jar" -> processAndroidJar(source, destination)
+              "data/api-versions.xml" -> processApiVersions(source, destination)
+              "package.xml" -> {} // Do not copy. This is for platforms installed via SDK manager.
+              else -> Files.copy(source, destination)
             }
             return CONTINUE
           }
-        })
 
-        val desugaredApiSignatures = desugaredApiSignatures()
-        AndroidJarRewriter().rewrite(androidJarFile, desugaredApiSignatures, wormholeAndroidJarFile)
+          private fun processApiVersions(source: Path, destination: Path) {
+            val sourceXml = Files.readAllBytes(source).toString(UTF_8)
+            val sourceApi = LintApi.deserialize(sourceXml)
+
+            val destinationClasses = sourceApi.classes.associateByTo(LinkedHashMap()) { it.name }
+            for (desugaredApiSignature in desugaredApiSignatures) {
+              val hash = desugaredApiSignature.indexOf('#')
+              val type = desugaredApiSignature.substring(0, hash)
+              val descriptor = desugaredApiSignature.substring(hash + 1)
+
+              val lintClass = destinationClasses[type] ?: continue // TODO warn?
+              val lintMethods = lintClass.methods.filter { it.descriptor != descriptor }
+                  .plus(LintMethod(descriptor, since = backportApiLevel))
+
+              destinationClasses[type] = lintClass.copy(methods = lintMethods)
+            }
+
+            val destinationApi = sourceApi.copy(classes = destinationClasses.values.toList())
+            Files.write(destination, destinationApi.serialize().toByteArray(UTF_8))
+          }
+
+          fun processAndroidJar(source: Path, destination: Path) {
+            AndroidJarRewriter().rewrite(source, desugaredApiSignatures, destination)
+          }
+
+          private fun processSourceProperties(source: Path, destination: Path) {
+            val properties = Files.readAllLines(source, UTF_8)
+                .filterNot { it.startsWith(codenameProperty) }
+                .plus(codenameProperty + wormholeCodename)
+                .joinToString("\n")
+            Files.write(destination, properties.toByteArray(UTF_8))
+          }
+        })
       }
       return wormholePlatform
     }
   }
 }
 
+/** Assume R8 can backport methods to API 14 (since this is the lowest VM backport tests run on). */
+private const val backportApiLevel = 14
 private const val codenameProperty = "AndroidVersion.CodeName="
 
 internal fun desugaredApiSignatures(): List<String> {

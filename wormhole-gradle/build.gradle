@@ -24,9 +24,11 @@ tasks.getByName('pluginUnderTestMetadata').
 
 dependencies {
   implementation project(':wormhole-jar-rewriter')
+  implementation project(':wormhole-api-versions')
   compileOnly deps.androidGradlePlugin
 
   fixtureClasspath deps.androidGradlePlugin
+  fixtureClasspath deps.androidLint
 
   testImplementation deps.androidGradlePlugin
   testImplementation deps.junit

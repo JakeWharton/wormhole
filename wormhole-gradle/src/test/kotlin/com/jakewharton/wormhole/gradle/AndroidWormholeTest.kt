@@ -20,7 +20,7 @@ class AndroidWormholeTest {
     val result = GradleRunner.create()
         .withProjectDir(fixtureDir)
         .withPluginClasspath()
-        .withArguments("clean", "assembleDebug", "--stacktrace")
+        .withArguments("clean", "assembleDebug", "lintDebug", "--stacktrace")
         .build()
     assertThat(result.output).contains("BUILD SUCCESSFUL")
   }
@@ -36,7 +36,7 @@ class AndroidWormholeTest {
     val result = GradleRunner.create()
         .withProjectDir(fixtureDir)
         .withPluginClasspath()
-        .withArguments("clean", "assembleDebug", "--stacktrace")
+        .withArguments("clean", "assembleDebug", "lintDebug", "--stacktrace")
         .build()
     assertThat(result.output).contains("BUILD SUCCESSFUL")
   }
@@ -52,7 +52,7 @@ class AndroidWormholeTest {
     val result = GradleRunner.create()
         .withProjectDir(fixtureDir)
         .withPluginClasspath()
-        .withArguments("clean", "assembleDebug", "--stacktrace")
+        .withArguments("clean", "--stacktrace")
         .buildAndFail()
     assertThat(result.output).apply {
       contains("BUILD FAILED")
