@@ -60,7 +60,6 @@ class AndroidWormhole : Plugin<Project> {
           throw IllegalArgumentException("Platform '$platform' not installed")
         }
 
-        // Copy everything over except for the android.jar to look like the original platform.
         Files.createDirectory(wormholeDir)
         Files.walkFileTree(platformDir, object : SimpleFileVisitor<Path>() {
           override fun visitFile(source: Path, attrs: BasicFileAttributes): FileVisitResult {
@@ -68,17 +67,24 @@ class AndroidWormhole : Plugin<Project> {
             val destination = wormholeDir.resolve(relativePath)
             Files.createDirectories(destination.parent)
 
-            if (relativePath == "source.properties") {
-              val properties = Files.readAllLines(source, UTF_8)
-                  .filterNot { it.startsWith(codenameProperty) }
-                  .plus(codenameProperty + wormholeCodename)
-                  .joinToString("\n")
-              Files.write(destination, properties.toByteArray(UTF_8))
-            } else if (relativePath == "android.jar") {
-              val desugaredApiSignatures = desugaredApiSignatures()
-              AndroidJarRewriter().rewrite(source, desugaredApiSignatures, destination)
-            } else if (relativePath != "package.xml") {
-              Files.copy(source, destination)
+            when (relativePath) {
+              "source.properties" -> {
+                val properties = Files.readAllLines(source, UTF_8)
+                    .filterNot { it.startsWith(codenameProperty) }
+                    .plus(codenameProperty + wormholeCodename)
+                    .joinToString("\n")
+                Files.write(destination, properties.toByteArray(UTF_8))
+              }
+              "android.jar" -> {
+                val desugaredApiSignatures = desugaredApiSignatures()
+                AndroidJarRewriter().rewrite(source, desugaredApiSignatures, destination)
+              }
+              "package.xml" -> {
+                // Do not copy. This file is for platforms installed via SDK manager.
+              }
+              else -> {
+                Files.copy(source, destination)
+              }
             }
             return CONTINUE
           }
