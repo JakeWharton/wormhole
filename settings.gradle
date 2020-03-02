@@ -1,4 +1,5 @@
 rootProject.name = 'wormhole'
 
+include ':wormhole-api-versions'
 include ':wormhole-gradle'
 include ':wormhole-jar-rewriter'

@@ -1,0 +1,13 @@
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'kotlinx-serialization'
+
+dependencies {
+  api deps.kotlinStdlib
+  api deps.kotlinSerialization
+  implementation deps.xmlutil
+
+  testImplementation deps.junit
+  testImplementation deps.truth
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

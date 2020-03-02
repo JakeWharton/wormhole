@@ -18,4 +18,10 @@ android {
   defaultConfig {
     minSdkVersion(14)
   }
+
+  lintOptions {
+    textReport = true
+    textOutput("stdout")
+    error("NewApi")
+  }
 }
