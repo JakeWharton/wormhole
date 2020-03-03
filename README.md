@@ -67,6 +67,9 @@ Is the library in the same repo as your app? It's safe to use.
 Is the library standalone and shipped as a binary? It is not safe to use.
 You can't know what version of AGP/R8 your consumers are using to ensure new methods will be desugared.
 
+#### Does it work with all versions of AGP(Android Gradle Plugin)?
+
+No. It works with AGP v4.0 and above.
 
 License
 =======
