@@ -47,9 +47,7 @@ fun BaseExtension.wormhole(platform: String): String {
   val wormholeCodename = "wormhole-$wormholeVersion-$platform-r8-$r8Version"
   val wormholePlatform = "android-$wormholeCodename"
 
-  val sdkDir = sdkDirectory.toPath()
-
-  val platformsDir = sdkDir.resolve("platforms")
+  val platformsDir = sdkDirectory.toPath().resolve("platforms")
   val wormholeDir = platformsDir.resolve(wormholePlatform)
   if (Files.notExists(wormholeDir)) {
     val platformDir = platformsDir.resolve(platform)
