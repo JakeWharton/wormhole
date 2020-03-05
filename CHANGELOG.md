@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.3.1 *(2020-03-05)*
+----------------------------
+
+ * Fix: Query the Android SDK directory from the Android Gradle plugin.
+ * Fix: Fail if the version of the Android Gradle plugin is too old.
+
+
 Version 0.3.0 *(2020-03-02)*
 ----------------------------
 
