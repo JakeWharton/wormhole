@@ -1,5 +1,6 @@
 package com.jakewharton.wormhole.gradle
 
+import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import com.android.build.gradle.BaseExtension
 import com.android.tools.r8.BackportedMethodList
 import com.android.tools.r8.BackportedMethodListCommand
@@ -9,6 +10,7 @@ import com.jakewharton.wormhole.lint.LintMethod
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.util.VersionNumber
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitResult.CONTINUE
@@ -47,6 +49,10 @@ class AndroidWormhole : Plugin<Project> {
     @JvmStatic
     @JvmName("create")
     fun createWormhole(platform: String): String {
+      check(VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).major >= 4) {
+        "Android Gradle plugin 4.0.0 or newer is required"
+      }
+
       val r8Version = R8Version.getVersionString().substringBefore(' ')
       val wormholeCodename = "wormhole-$wormholeVersion-$platform-r8-$r8Version"
       val wormholePlatform = "android-$wormholeCodename"
